@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {UNSAFE_DataRouterContext, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 
 const Register = () => {
@@ -33,6 +33,7 @@ const Register = () => {
     const navigate = useNavigate();
 
     const submitForm = (e) => {
+        //if your computer is slower this may take a while becauase of the profile picture
         e.preventDefault();
         axios.post('http://localhost:8000/api/user/register', {
             fullName: fullName, email: email,password: password, confirmPassword: confirmPassword
@@ -43,6 +44,7 @@ const Register = () => {
                 navigate('/profilePage');
             })
             .catch(err => {
+                console.log(err);
                 const er = err.response.data.err.errors;
                 setFullNameError((er.fullName === undefined ? null : er.fullName.message));
                 setBioError((er.bio === undefined ? null : er.bio.message));
@@ -56,7 +58,6 @@ const Register = () => {
                 setEmailError((er.email === undefined ? null : er.email.message));
                 setPasswordError((er.password === undefined ? null : er.password.message));
                 setConfirmPasswordError((er.confirmPassword === undefined ? null : er.confirmPassword.message));
-
                 console.log(err.response.data.err.errors);
             })
 

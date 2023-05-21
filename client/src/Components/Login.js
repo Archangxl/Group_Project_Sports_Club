@@ -5,19 +5,27 @@ import axios from 'axios';
 const Login = () => {
 
     const [email, setEmail] = useState("");
+    const [emailError, setEmailError] = useState("");
     const [password, setPassword] = useState("");
+    const [passwordError, setPasswordError] = useState("");
 
     const navigate = useNavigate();
 
     const submitForm = (e) => {
+        //if your computer is slower this may take a while becauase of the profile picture
         e.preventDefault();
         axios.post("http://localhost:8000/api/user/login",{email: email,password: password}, {withCredentials: true})
             .then(res => {
                 console.log(res);
                 navigate('/profilePage')})
             .catch(err => { 
-                console.log(err.response)
+                console.log(err.response);
+                setEmailError((err.response.data.email === undefined ? null : err.response.data.email));
+                setPasswordError((err.response.data.password === undefined ? null : err.response.data.password));
             });
+    }
+    const errStyles = {
+        color: "red"
     }
 
     return (
@@ -26,21 +34,16 @@ const Login = () => {
                 <h1>Sports Club</h1>
             </header>
             <main>
-
                 <form onSubmit={submitForm}>
-
-                    <p></p>
+                    <p style={errStyles}>{emailError}</p>
                     <label>Email:</label>
                     <input type='text'  value={email} onChange={(e) => setEmail(e.target.value)}></input>
-                    <p></p>
+                    <p style={errStyles}>{passwordError}</p>
                     <label>Password:</label>
                     <input type='password'  value={password} onChange={(e) => setPassword(e.target.value)}></input>
                     <p></p>
                     <button>Login</button>
                 </form>
-
-                <p><a href='/resetPassword'>Forgot your Passowrd?</a></p>
-
             </main>
 
             <footer>

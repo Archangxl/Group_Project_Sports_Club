@@ -7,7 +7,6 @@ module.exports = {
     createUser: (req, res) => {
         user.create(req.body)
             .then((createdUser) => { 
-                console.log(createdUser);
                 // use schema data to create payload
                 // create a token
                 const cookie = jwt.sign({
@@ -30,7 +29,6 @@ module.exports = {
             _id: id.id
         }, req.body, {new:true, runValidators: true})
             .then((updatedUser) => {
-                console.log(updatedUser);
                 res.json(updatedUser);
             })
             .catch((err) => {
@@ -42,13 +40,13 @@ module.exports = {
         const User = await user.findOne({email: req.body.email});
 
         if (User === null) {
-            return res.status(400).json({message: "Email is incorrect!"})
+            return res.status(400).json({email: "Email is incorrect!"})
         }
 
         const passwordInDB = await bcrypt.compare(req.body.password, User.password);
 
         if (passwordInDB === false) {
-            return res.status(400).json({message: "Password is incorrect!"})
+            return res.status(400).json({password: "Password is incorrect!"})
         }
 
         const cookie = jwt.sign({

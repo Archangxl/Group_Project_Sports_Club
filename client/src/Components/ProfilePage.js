@@ -16,6 +16,7 @@ const ProfilePage = (props) => {
     const [createdAt, setCreatedAt] = useState("");
     
     useEffect(() => {
+        //if your computer is slower this may take a while becauase of the profile picture
         axios.get('http://localhost:8000/api/user/getlogged', {withCredentials: true})
             .then(res => { 
                 setFullName(res.data.fullName);
@@ -24,7 +25,7 @@ const ProfilePage = (props) => {
                 setState(res.data.state);
                 setSport(res.data.sport);
                 setSportTeam(res.data.sportTeam);
-                setBirthday(res.data.sportTeam);
+                setBirthday(res.data.birthDate);
                 setGender(res.data.gender);
                 setPhoto(res.data.photo);
                 let date = res.data.createdAt;
@@ -37,7 +38,9 @@ const ProfilePage = (props) => {
                 }
                 setCreatedAt(formatedDate);
             })
-            .catch(err => console.log(err));
+            .catch(err => { 
+                console.log(err)
+            });
     }, [])
 
     const logOutButton = (e) => {
