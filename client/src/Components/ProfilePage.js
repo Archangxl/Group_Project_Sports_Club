@@ -3,10 +3,8 @@ import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 
 const ProfilePage = (props) => {
-    const [user, setUser] = useState({});
     const navigate = useNavigate();
     const [photo, setPhoto] = useState(null);
-    const [base64string, setBase64String] = useState("");
     const [fullName, setFullName] = useState("");
     const [bio, setBio] = useState("");
     const [city, setCity] = useState("");
@@ -28,6 +26,7 @@ const ProfilePage = (props) => {
                 setSportTeam(res.data.sportTeam);
                 setBirthday(res.data.sportTeam);
                 setGender(res.data.gender);
+                setPhoto(res.data.photo);
                 let date = res.data.createdAt;
                 let formatedDate = "";
                 for (let i = 0; i < date.length; i++) {
@@ -46,24 +45,6 @@ const ProfilePage = (props) => {
         axios.get('http://localhost:8000/api/user/logout', {withCredentials: true})
             .then(res => navigate('/'))
             .catch(err => console.log(err));
-    }
-    const photoHandler = (e) => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setBase64String(reader.result.toString());
-        }
-        
-        if (file) {
-            reader.readAsDataURL(file);
-        }
-    }
-
-    const photoFormSubmit = (e) => {
-        e.preventDefault();
-        setPhoto(base64string);
-        setBase64String("");
-        navigate('/profilePage');
     }
 
     return (
@@ -94,11 +75,6 @@ const ProfilePage = (props) => {
                     <form>
                         <label>Whats New</label>
                         <textarea></textarea>
-                    </form>
-                    <form onSubmit={photoFormSubmit}>
-                        <label>Add photo</label>
-                        <input type='file' onChange={photoHandler}></input>
-                        <button>Add Photo</button>
                     </form>
                 </div>
                 <div className="Posts">

@@ -15,14 +15,30 @@ const Register = () => {
     const [sportTeam, setSportTeam] = useState("");
     const [birthday, setBirthday] = useState("");
     const [gender, setGender] = useState("");
+    const [photo, setPhoto] = useState(null);
+    const [base64string, setBase64String] = useState("");
 
     const navigate = useNavigate();
 
+    const photoHandler = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setBase64String(reader.result.toString());
+        }
+        
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+
     const submitForm = (e) => {
         e.preventDefault();
+        setPhoto(base64string);
         axios.post('http://localhost:8000/api/user/register', {
             fullName: fullName, email: email,password: password, confirmPassword: confirmPassword
-            ,bio: bio, city: city, state: state ,sport: sport, sportTeam: sportTeam, birthDate: birthday, gender: gender},
+            ,bio: bio, city: city, state: state ,sport: sport, sportTeam: sportTeam, birthDate: birthday, gender: gender,
+            photo: photo},
             {withCredentials: true})
             .then(res => {
                 navigate('/profilePage');
@@ -71,6 +87,9 @@ const Register = () => {
                         <option>Female</option>
                         <option>other</option>
                     </select>
+                    <p></p>
+                    <label>Profile picture: </label>
+                    <input type='file' onChange={photoHandler}></input>
                     <p></p>
                     <label>Email:</label>
                     <input type='text'  value={email} onChange={(e) => setEmail(e.target.value)}></input>

@@ -5,12 +5,13 @@ const bcrypt = require('bcrypt');
 module.exports = {
     
     createUser: (req, res) => {
+        console.log(req.body);
         user.create(req.body)
             .then((addUser) => { 
                 // use schema data to create payload
-                const payload = { _id: addUser._id}
+                const payload = { id: addUser._id}
                 // create a token
-                const token = jwt.sign({_id: payload._id}, process.env.SECRET);
+                const token = jwt.sign({id: payload._id}, process.env.SECRET);
                 
                 res.cookie('userToken', token, { httpOnly: true })
                 .json({ successMessage: 'userToken: ', user: addUser })})
@@ -21,7 +22,9 @@ module.exports = {
 
     updateUser: (req, res) => {
         const id = jwt.decode(req.cookies.userToken); 
-        user.findByIdAndUpdate({_id: id.id}, req.body, {new:true, runValidators: true})
+        user.findByIdAndUpdate({
+            _id: id.id
+        }, req.body, {new:true, runValidators: true})
             .then((updatedUser) => {
                 console.log(updatedUser);
                 res.json(updatedUser);
