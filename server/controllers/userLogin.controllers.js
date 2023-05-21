@@ -5,16 +5,20 @@ const bcrypt = require('bcrypt');
 module.exports = {
     
     createUser: (req, res) => {
-        console.log(req.body);
         user.create(req.body)
-            .then((addUser) => { 
+            .then((createdUser) => { 
+                console.log(createdUser);
                 // use schema data to create payload
-                const payload = { id: addUser._id}
                 // create a token
-                const token = jwt.sign({id: payload._id}, process.env.SECRET);
+                const cookie = jwt.sign({
+                    id: createdUser._id
+                }, process.env.SECRET);
+        
+                res.cookie('userToken', cookie, {
+                    httpOnly: true
+                }).json({msg: "success", user: createdUser, token: cookie});
+            })
                 
-                res.cookie('userToken', token, { httpOnly: true })
-                .json({ successMessage: 'userToken: ', user: addUser })})
             .catch((err) => {
                 res.status(400).json({err});
             });
@@ -61,7 +65,7 @@ module.exports = {
         const id = jwt.decode(req.cookies.userToken); 
         user.findById({_id: id.id})
             .then((found)=> res.json(found))
-            .catch((error) => res.status(400).json({ errors: 'failed to get logged in user' }) )
+            .catch((error) => res.status(400).json({ error: error, errors: 'failed to get logged in user' }) )
     },
 
     getLogout: (req, res) => {

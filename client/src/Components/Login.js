@@ -15,7 +15,9 @@ const Login = () => {
             .then(res => {
                 console.log(res);
                 navigate('/profilePage')})
-            .catch(err => console.log(err));
+            .catch(err => { 
+                console.log(err.response)
+            });
     }
 
     return (

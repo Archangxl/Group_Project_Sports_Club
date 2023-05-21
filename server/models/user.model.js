@@ -8,8 +8,12 @@ const sportSchema = new mongoose.Schema({
     },
 
     email: {
-        type: String, required: [true, 'Bio is required.'],
-        minlength: [5, 'Bio must be at least 5 characters.']
+        type: String,
+        required: [true, "Email is required"],
+        validate: {
+            validator: val => /^([\w-\.]+@([\w-]+\.)+[\w-]+)?$/.test(val),
+            message: "Please enter a valid email"
+        }
     },
 
     password: {

@@ -57,7 +57,6 @@ const ProfilePage = (props) => {
                 <h2>Logged In {fullName}</h2>
                 <button onClick={logOutButton}>Logout</button>
                 <button onClick={(e) => navigate('/editProfile')}>Edit your Information</button>
-                <button onClick={(e) => navigate('/photos')}>Photos</button>
                 <button onClick={(e) => navigate('/feed')}>Feed</button>
             </header>
             <main>
