@@ -52,13 +52,29 @@ const ProfilePage = (props) => {
 
     const [postMessage, setPostMessage] = useState("");
     const [postError, sePostError] = useState("");
-
+    const [count, setCount] = useState(0);
     const postFormSubmition = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:8000/api/createPost', {postMessage}, {withCredentials: true})
+        axios.post('http://localhost:8000/api/createPost', {postMessage, fullName}, {withCredentials: true})
             .then(res => {
-                console.log(res);
-                navigate('/profilePage');
+                setPostMessage("");
+                setCount(count => count + 1);
+            })
+            .catch(err => console.log(err));
+    }
+    const [posts, setPosts] = useState([]);
+    useEffect(() => {
+        axios.get('http://localhost:8000/api/grabPostsForLoggedUser', {withCredentials: true})
+            .then(res => {
+                setPosts(res.data);
+            })
+            .catch(err => console.log(err));
+    }, [count])
+    const deletePost = (e, postId) => {
+        e.preventDefault();
+        axios.delete('http://localhost:8000/api/deletePost/' +postId, {withCredentials: true} )
+            .then(res =>{ 
+                setCount(count => count + 1);
             })
             .catch(err => console.log(err));
     }
@@ -94,11 +110,22 @@ const ProfilePage = (props) => {
                     </form>
                 </div>
                 <div className="Posts">
-                    <p><b>User Name</b></p>
-                    <p>post</p>
-                    <p><button>Like</button> number of likes</p>
-                    <p><button>Comment</button></p>
-                    <button>Delete</button>
+                {
+                        posts.map((post, index) => {
+                            return (
+                                <div key={index} style={{border: "1px solid black"}}>
+                                    <p>{post.post.userPostingName}</p>
+                                    <p>{post.post.message}</p>
+                                    <p>Likes {post.numberOfLikes}</p>
+                                    <button
+                                        onClick={(e) => {
+                                            deletePost(e, post.post._id);
+                                        }}
+                                    >Delete</button>
+                                </div>
+                            );
+                        })
+                    }
                 </div>
             </main>
         </>

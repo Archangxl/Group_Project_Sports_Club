@@ -5,5 +5,5 @@ module.exports = (app) => {
     app.post('/api/createPost', authenticate, postController.createPost);
     app.get('/api/grabAllPosts', authenticate, postController.grabAllPostsForFeedPage);
     app.get('/api/grabPostsForLoggedUser', authenticate, postController.grabAllPostsForOneUserForProfilePage);
-    app.delete('/api/deletePost', authenticate, postController.deletePost);
+    app.delete('/api/deletePost/:postId', authenticate, postController.deletePost);
 }
