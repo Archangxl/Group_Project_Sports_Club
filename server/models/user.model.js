@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-const jwt = require("jsonwebtoken");
+
 const sportSchema = new mongoose.Schema({
     
     fullName: {

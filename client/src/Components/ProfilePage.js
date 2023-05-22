@@ -50,6 +50,19 @@ const ProfilePage = (props) => {
             .catch(err => console.log(err));
     }
 
+    const [postMessage, setPostMessage] = useState("");
+    const [postError, sePostError] = useState("");
+
+    const postFormSubmition = (e) => {
+        e.preventDefault();
+        axios.post('http://localhost:8000/api/createPost', {postMessage}, {withCredentials: true})
+            .then(res => {
+                console.log(res);
+                navigate('/profilePage');
+            })
+            .catch(err => console.log(err));
+    }
+
     return (
         <>
             <header>
@@ -73,10 +86,11 @@ const ProfilePage = (props) => {
                     <p>Gender: {gender}</p>
                     <p>Joined on: {createdAt}</p>
                 </div>
-                <div className="What's-New--Add-Photo">
-                    <form>
+                <div className="What's-New">
+                    <form onSubmit={postFormSubmition}>
                         <label>Whats New</label>
-                        <textarea></textarea>
+                        <textarea value={postMessage} onChange={(e) => setPostMessage(e.target.value)}></textarea>
+                        <button>Submit</button>
                     </form>
                 </div>
                 <div className="Posts">
