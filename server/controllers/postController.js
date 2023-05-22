@@ -66,6 +66,10 @@ module.exports = {
                                         if(allLikes[j].postId !== allPosts[i]._id.toString()) {
                                             continue;
                                         } 
+                                        if (allLikes[j].userLikingPostId === id.id) {
+                                            arrayDictionaryBeingSentToFrontEnd[arrayDictionaryBeingSentToFrontEnd.length-1].userLoggedInIdAlreadyLikedPost = true;
+                                        }   
+                                        arrayDictionaryBeingSentToFrontEnd[arrayDictionaryBeingSentToFrontEnd.length-1].likes = allLikes[j]._id;
                                         arrayDictionaryBeingSentToFrontEnd[arrayDictionaryBeingSentToFrontEnd.length-1].numberOfLikes++;
                                         
                                     }

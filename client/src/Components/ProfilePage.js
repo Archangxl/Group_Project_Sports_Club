@@ -117,6 +117,25 @@ const ProfilePage = (props) => {
                                     <p>{post.post.userPostingName}</p>
                                     <p>{post.post.message}</p>
                                     <p>Likes {post.numberOfLikes}</p>
+                                    {post.userLoggedInIdAlreadyLikedPost === true ? 
+                                        <button onClick={(e) => {
+                                            axios.delete('http://localhost:8000/api/unlikePost/' + post.likes,
+                                            {withCredentials: true})
+                                                .then(res => {
+                                                    setCount(count => count + 1);
+                                                })
+                                                .catch(err => console.log(err));
+                                        }}>Unlike Post</button>
+                                        :
+                                        <button onClick={(e) => {
+                                            axios.post('http://localhost:8000/api/likePost/' + post.post._id, 
+                                            {fullName}, {withCredentials: true})
+                                                .then(res => {
+                                                    setCount(count => count + 1);
+                                                })
+                                                .catch(err => console.log(err));
+                                        }}>Like Post</button>
+                                    }
                                     <button
                                         onClick={(e) => {
                                             deletePost(e, post.post._id);

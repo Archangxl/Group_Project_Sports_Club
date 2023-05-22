@@ -23,17 +23,21 @@ const Feed = () => {
                 console.log(err)
             });
     }, [])
-    /*
-    useEffect(() => {
+
+    const [userRequestForLiveScores, setUserRequestForLiveScores] = useState("");
+
+    const grabSport = (e) => {
+        e.preventDefault();
+
+        
+
         //baseball
             axios.get(
                 "https://v1.baseball.api-sports.io/games?date=2023-05-19&league=1&season=2023"
-                ""
                 ,
             {headers: {
                 'x-rapidapi-key': '7292529224de8554a6bd9f9ba3831d88',
-                'x-rapidapi-host': ""
-                'v1.baseball.api-sports.io'
+                'x-rapidapi-host': 'v1.baseball.api-sports.io'
             }})
             .then(res => {
                 setBaseball(res.data.response);
@@ -42,17 +46,19 @@ const Feed = () => {
             .catch(function (error) {
                 console.log(error);
             });
-    })
-    */
+    }
     const [posts, setPosts] = useState([]);
     useEffect(() => {
         axios.get('http://localhost:8000/api/grabAllPosts', {withCredentials: true})
             .then(res => {
-                console.log(res.data);
                 setPosts(res.data);
             })
             .catch(err => console.log(err));
     }, [count])
+
+    const [commentMessage, setCommentMessage] = useState("");
+    const [commentFormPopulate, setCommentFormPopulate] = useState(false);
+    const [commentIndexForCommentFormPopulate, setCommentIndexForCommentFormPopulate] = useState(null);
 
     return(
         <>
@@ -64,35 +70,105 @@ const Feed = () => {
             
             <main>
                 <h4>Your Sports Feed</h4>
-                <div className='Posts'>
+                <div className='Posts'> 
                     {
                         posts.map((post, index) => {
                             return (
-                                <div key={index} style={{border: "1px solid black"}}>
-                                    <p>{post.post.userPostingName}</p>
-                                    <p>{post.post.message}</p>
-                                    <p>Likes {post.numberOfLikes}</p>
-                                    {post.userLoggedInIdAlreadyLikedPost === true ? 
-                                    <button onClick={(e) => {
-                                        axios.delete('http://localhost:8000/api/unlikePost/' + post.likes,
-                                        {withCredentials: true})
-                                            .then(res => {
-                                                setCount(count => count + 1);
-                                            })
-                                            .catch(err => console.log(err));
-                                    }}>Unlike Post</button>
-                                    :
-                                    <button onClick={(e) => {
-                                        axios.post('http://localhost:8000/api/likePost/' + post.post._id, 
-                                        {fullName}, {withCredentials: true})
-                                            .then(res => {
-                                                setCount(count => count + 1);
-                                            })
-                                            .catch(err => console.log(err));
-                                    }}>Like Post</button>
+                            <div key={index} style={{border: "1px solid black"}}>
+                                {index === commentIndexForCommentFormPopulate 
+                                    ? 
+                                    <>
+                                            <p>{post.post.userPostingName}</p>
+                                            <p>{post.post.message}</p>
+                                            <p>Likes {post.numberOfLikes}</p>
+                                            {post.userLoggedInIdAlreadyLikedPost === true ? 
+                                            <button onClick={(e) => {
+                                                axios.delete('http://localhost:8000/api/unlikePost/' + post.likes,
+                                                {withCredentials: true})
+                                                    .then(res => {
+                                                        setCount(count => count + 1);
+                                                    })
+                                                    .catch(err => console.log(err));
+                                            }}>Unlike Post</button>
+                                            :
+                                            <button onClick={(e) => {
+                                                axios.post('http://localhost:8000/api/likePost/' + post.post._id, 
+                                                {fullName}, {withCredentials: true})
+                                                    .then(res => {
+                                                        setCount(count => count + 1);
+                                                    })
+                                                    .catch(err => console.log(err));
+                                            }}>Like Post</button>
+                                        }
+                                            <button onClick={(e) => {
+                                                if (commentFormPopulate === false) {
+                                                    setCommentFormPopulate(true);
+                                                    setCommentIndexForCommentFormPopulate(index);
+                                                } else {
+                                                    setCommentFormPopulate(false);
+                                                    setCommentMessage("");
+                                                    setCommentIndexForCommentFormPopulate(null);
+                                                }
+                                            }}>Comment</button>
+
+                                            <form onSubmit={(e) => {
+                                                e.preventDefault();
+                                                axios.post('http://localhost:8000/api/createPost/' + post.post._id,
+                                                {commentMessage: commentMessage, fullName: fullName},
+                                                {withCredentials: true},
+                                                )
+                                                    .then(res => {
+                                                        console.log(res);
+                                                        setCommentMessage("");
+                                                        setCount(count => count+1);
+                                                    })
+                                                    
+                                                    .catch(err => console.log(err));
+                                            }}>
+                                                <label>Make a comment</label>
+                                                <textarea onChange={(e) =>  setCommentMessage(e.target.value)} value={commentMessage}></textarea>
+                                                <button>Submit Comment</button>
+                                            </form>
+                                        </>
+                                        :
+                                        <>
+                                            <p>{post.post.userPostingName}</p>
+                                            <p>{post.post.message}</p>
+                                            <p>Likes {post.numberOfLikes}</p>
+
+                                            {post.userLoggedInIdAlreadyLikedPost === true ? 
+                                                <button onClick={(e) => {
+                                                    axios.delete('http://localhost:8000/api/unlikePost/' + post.likes,
+                                                    {withCredentials: true})
+                                                        .then(res => {
+                                                            setCount(count => count + 1);
+                                                        })
+                                                        .catch(err => console.log(err));
+                                                }}>Unlike Post</button>
+                                                :
+                                                <button onClick={(e) => {
+                                                    axios.post('http://localhost:8000/api/likePost/' + post.post._id, 
+                                                    {fullName}, {withCredentials: true})
+                                                        .then(res => {
+                                                            setCount(count => count + 1);
+                                                        })
+                                                        .catch(err => console.log(err));
+                                                }}>Like Post</button>
+                                            }
+
+                                            <button onClick={(e) => {
+                                                if (commentFormPopulate === false) {
+                                                    setCommentFormPopulate(true);
+                                                    setCommentIndexForCommentFormPopulate(index);
+                                                } else {
+                                                    setCommentFormPopulate(false);
+                                                    setCommentIndexForCommentFormPopulate(null);
+                                                }
+                                            }}>Comment</button>
+                                        </>
                                 }
                                 </div>
-                            );
+                            )
                         })
                     }
                 </div>

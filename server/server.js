@@ -18,6 +18,7 @@ require("./config/mongoose.config");
 require("./routes/userLogin.routes")(app);
 require("./routes/post.routes")(app);
 require("./routes/like.routes")(app);
+require("./routes/comment.routes")(app);
 
 app.listen(8000, () => {
     console.log('Currently listening to port 8000');
