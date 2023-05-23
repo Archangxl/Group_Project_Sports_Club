@@ -51,6 +51,7 @@ const Feed = () => {
     useEffect(() => {
         axios.get('http://localhost:8000/api/grabAllPosts', {withCredentials: true})
             .then(res => {
+                console.log(res.data);
                 setPosts(res.data);
             })
             .catch(err => console.log(err));
@@ -80,12 +81,13 @@ const Feed = () => {
                                     <>
                                             <p>{post.post.userPostingName}</p>
                                             <p>{post.post.message}</p>
-                                            <p>Likes {post.numberOfLikes}</p>
+                                            <p>Likes {post.numberOfLikes} | Comments {post.numberOfComments}</p>
                                             {post.userLoggedInIdAlreadyLikedPost === true ? 
                                             <button onClick={(e) => {
                                                 axios.delete('http://localhost:8000/api/unlikePost/' + post.likes,
                                                 {withCredentials: true})
                                                     .then(res => {
+                                                        console.log(res);
                                                         setCount(count => count + 1);
                                                     })
                                                     .catch(err => console.log(err));
@@ -95,6 +97,7 @@ const Feed = () => {
                                                 axios.post('http://localhost:8000/api/likePost/' + post.post._id, 
                                                 {fullName}, {withCredentials: true})
                                                     .then(res => {
+                                                        console.log(res);
                                                         setCount(count => count + 1);
                                                     })
                                                     .catch(err => console.log(err));
@@ -129,32 +132,65 @@ const Feed = () => {
                                                 <textarea onChange={(e) =>  setCommentMessage(e.target.value)} value={commentMessage}></textarea>
                                                 <button>Submit Comment</button>
                                             </form>
+                                            <div className='Comment-section'>
+                                                {
+                                                    post.comments.map((comment, index) => {
+                                                        return (
+                                                            <div key={index} style={{border: "1px solid black", margin: "10px"}}>
+                                                                {comment.userLoggedInPostedThisComment === true ? 
+                                                                <>
+                                                                    <p>{comment.userWhoPostedComment}</p>
+                                                                    <p>{comment.commentMessage}</p>
+                                                                    <button onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        axios.delete("http://localhost:8000/api/deleteComment/" + comment.commentId, {withCredentials: true})
+                                                                            .then(res => {
+                                                                                setCount(count => count+ 1);
+                                                                            })
+                                                                            .catch(err => console.log(err));
+                                                                    }}>Delete</button>
+                                                                </>
+                                                                
+                                                                : 
+                                                                
+                                                                <>
+                                                                    <p>{comment.userWhoPostedComment}</p>
+                                                                    <p>{comment.commentMessage}</p>
+                                                                </>
+                                                                }
+                                                            </div>
+                                                        );
+                                                    })
+                                                }
+                                            </div>
                                         </>
                                         :
                                         <>
                                             <p>{post.post.userPostingName}</p>
                                             <p>{post.post.message}</p>
-                                            <p>Likes {post.numberOfLikes}</p>
+                                            <p>Likes {post.numberOfLikes} | Comments {post.numberOfComments}</p>
 
                                             {post.userLoggedInIdAlreadyLikedPost === true ? 
-                                                <button onClick={(e) => {
-                                                    axios.delete('http://localhost:8000/api/unlikePost/' + post.likes,
-                                                    {withCredentials: true})
-                                                        .then(res => {
-                                                            setCount(count => count + 1);
-                                                        })
-                                                        .catch(err => console.log(err));
-                                                }}>Unlike Post</button>
-                                                :
-                                                <button onClick={(e) => {
-                                                    axios.post('http://localhost:8000/api/likePost/' + post.post._id, 
-                                                    {fullName}, {withCredentials: true})
-                                                        .then(res => {
-                                                            setCount(count => count + 1);
-                                                        })
-                                                        .catch(err => console.log(err));
-                                                }}>Like Post</button>
-                                            }
+                                            <button onClick={(e) => {
+                                                axios.delete('http://localhost:8000/api/unlikePost/' + post.likes,
+                                                {withCredentials: true})
+                                                    .then(res => {
+                                                        console.log(res);
+                                                        setCount(count => count + 1);
+                                                    })
+                                                    .catch(err => console.log(err));
+                                            }}>Unlike Post</button>
+                                            :
+                                            <button onClick={(e) => {
+                                                axios.post('http://localhost:8000/api/likePost/' + post.post._id, 
+                                                {fullName}, {withCredentials: true})
+                                                    .then(res => {
+                                                        console.log(res);
+                                                        setCount(count => count + 1);
+                                                    })
+                                                    .catch(err => console.log(err));
+                                            }}>Like Post</button>
+                                        }
 
                                             <button onClick={(e) => {
                                                 if (commentFormPopulate === false) {
