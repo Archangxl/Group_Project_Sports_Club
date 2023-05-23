@@ -86,10 +86,9 @@ const ProfilePage = (props) => {
     return (
         <>
             <header>
-                <img src={photo} style={{
+                <img alt="You" src={photo} style={{
                     height: "100px",
-                    width: "150px", 
-                    borderRadius: "5px"}}></img>
+                    width: "150px"}}></img>
                 <h2>Logged In {fullName}</h2>
                 <button onClick={logOutButton}>Logout</button>
                 <button onClick={(e) => navigate('/editProfile')}>Edit your Information</button>
@@ -116,7 +115,6 @@ const ProfilePage = (props) => {
                 <div className="Posts">
                 {
                         posts.map((post, index) => {
-                            console.log(post);
                             return (
                             <div key={index} style={{border: "1px solid black"}}>
                                 {index === commentIndexForCommentFormPopulate 

@@ -5,7 +5,6 @@ import axios from 'axios';
 const Feed = () => {
 
     const navigate = useNavigate();
-    const [baseball, setBaseball] = useState([]);
     const [count, setCount] = useState(0);
     const [fullName, setFullName] = useState("");
 
@@ -13,8 +12,8 @@ const Feed = () => {
         e.preventDefault();
         navigate('/');
     }
+    //grabs user
     useEffect(() => {
-        //if your computer is slower this may take a while becauase of the profile picture
         axios.get('http://localhost:8000/api/user/getlogged', {withCredentials: true})
             .then(res => { 
                 setFullName(res.data.fullName);
@@ -22,15 +21,67 @@ const Feed = () => {
             .catch(err => { 
                 console.log(err)
             });
-    }, [])
+    }, [count])
 
-    const [userRequestForLiveScores, setUserRequestForLiveScores] = useState("");
+    const [posts, setPosts] = useState([]);
+    //grabs posts
+    useEffect(() => {
+        axios.get('http://localhost:8000/api/grabAllPosts', {withCredentials: true})
+            .then(res => {
+                setPosts(res.data);
+            })
+            .catch(err => console.log(err));
+    }, [count])
+
+    const [commentMessage, setCommentMessage] = useState("");
+    const [commentFormPopulate, setCommentFormPopulate] = useState(false);
+    const [commentIndexForCommentFormPopulate, setCommentIndexForCommentFormPopulate] = useState(null);
+    
+    const [userRequestForLiveScores, setUserRequestForLiveScores] = useState(null);
+    const [liveScoresDisplay, setLiveScoresDisplay] = useState(null);
+
+    const [todaysDate, setTodaysDate] = useState(new Date());
+    const [todaysDateFormatForExternalApi, setTodaysDateFormatForExternalApi] = useState(todaysDate.getFullYear().toString() + "-" + todaysDate.getMonth().toString() + "-" + todaysDate.getDate().toString());
+    //liveScoreDisplayController
+    useEffect(() => {        
+        if (userRequestForLiveScores === null) {
+            setLiveScoresDisplay(null);
+        } else if (userRequestForLiveScores === "NBA") {
+            axios.get("https://v2.nba.api-sports.io/games?date="+todaysDateFormatForExternalApi,
+            {headers: {'x-rapidapi-key': '7292529224de8554a6bd9f9ba3831d88','x-rapidapi-host': 'v2.nba.api-sports.io'}})
+                .then(res => {
+                    console.log(res);
+                })
+                .catch(err => console.log(err));
+        } else if (userRequestForLiveScores === "MLB") {
+            axios.get("https://v1.baseball.api-sports.io/games?date="+todaysDateFormatForExternalApi+"&league=1&season="+todaysDate.getFullYear(),
+            {headers: {'x-rapidapi-key': '7292529224de8554a6bd9f9ba3831d88','x-rapidapi-host': 'v1.baseball.api-sports.io'}})
+                .then(res => {
+                    console.log(res);
+                })
+                .catch(err => console.log(err));
+        } else if (userRequestForLiveScores === "NFL") {
+            axios.get("https://v1.american-football.api-sports.io/games?date="+todaysDateFormatForExternalApi,
+            {headers: {'x-rapidapi-key': '7292529224de8554a6bd9f9ba3831d88','x-rapidapi-host': 'v1.american-football.api-sports.io'}})
+                .then(res => {
+                    console.log(res);
+                })
+                .catch(err => console.log(err));
+        }
+
+    }, [count]);
+
+    //Timeout method used to make the scores live, making the page update every minute (the exteranl api only allows 100 requests a day thats why this is commented out)
+    /*
+    useEffect(() => {
+        setTimeout(() => {
+            setCount(count => count + 1);
+        }, 60000)
+    }) */
+    
 
     const grabSport = (e) => {
         e.preventDefault();
-
-        
-
         //baseball
             axios.get(
                 "https://v1.baseball.api-sports.io/games?date=2023-05-19&league=1&season=2023"
@@ -40,35 +91,31 @@ const Feed = () => {
                 'x-rapidapi-host': 'v1.baseball.api-sports.io'
             }})
             .then(res => {
-                setBaseball(res.data.response);
+                
 
             })
             .catch(function (error) {
                 console.log(error);
             });
     }
-    const [posts, setPosts] = useState([]);
-    useEffect(() => {
-        axios.get('http://localhost:8000/api/grabAllPosts', {withCredentials: true})
-            .then(res => {
-                console.log(res.data);
-                setPosts(res.data);
-            })
-            .catch(err => console.log(err));
-    }, [count])
-
-    const [commentMessage, setCommentMessage] = useState("");
-    const [commentFormPopulate, setCommentFormPopulate] = useState(false);
-    const [commentIndexForCommentFormPopulate, setCommentIndexForCommentFormPopulate] = useState(null);
-
     return(
         <>
-            <header>
+            <nav>
                 <h2>Sports Club</h2>
                 <button onClick={logOutButton}>Logout</button>
                 <button onClick={(e) => navigate('/profilePage')}>Profile Page</button>
+            </nav>
+
+            <header className='Live-Scores'>
+                <p><b>Live Scores</b></p>
+
+                <button onClick={(e) => { setUserRequestForLiveScores("NBA"); setCount(count => count + 1); }}>NBA</button>
+                <button onClick={(e) => { setUserRequestForLiveScores("MLB"); setCount(count => count + 1);}}>MLB</button>
+                <button onClick={(e) => { setUserRequestForLiveScores("NFL"); setCount(count => count + 1);}}>NFL</button>
+                <button onClick={(e) => { setUserRequestForLiveScores(null); setCount(count => count + 1);}}>Hide Scores</button>
+                {liveScoresDisplay}
             </header>
-            
+
             <main>
                 <h4>Your Sports Feed</h4>
                 <div className='Posts'> 
@@ -87,7 +134,6 @@ const Feed = () => {
                                                 axios.delete('http://localhost:8000/api/unlikePost/' + post.likes,
                                                 {withCredentials: true})
                                                     .then(res => {
-                                                        console.log(res);
                                                         setCount(count => count + 1);
                                                     })
                                                     .catch(err => console.log(err));
@@ -97,7 +143,6 @@ const Feed = () => {
                                                 axios.post('http://localhost:8000/api/likePost/' + post.post._id, 
                                                 {fullName}, {withCredentials: true})
                                                     .then(res => {
-                                                        console.log(res);
                                                         setCount(count => count + 1);
                                                     })
                                                     .catch(err => console.log(err));
@@ -121,7 +166,6 @@ const Feed = () => {
                                                 {withCredentials: true},
                                                 )
                                                     .then(res => {
-                                                        console.log(res);
                                                         setCommentMessage("");
                                                         setCount(count => count+1);
                                                     })
@@ -175,7 +219,6 @@ const Feed = () => {
                                                 axios.delete('http://localhost:8000/api/unlikePost/' + post.likes,
                                                 {withCredentials: true})
                                                     .then(res => {
-                                                        console.log(res);
                                                         setCount(count => count + 1);
                                                     })
                                                     .catch(err => console.log(err));
@@ -185,7 +228,6 @@ const Feed = () => {
                                                 axios.post('http://localhost:8000/api/likePost/' + post.post._id, 
                                                 {fullName}, {withCredentials: true})
                                                     .then(res => {
-                                                        console.log(res);
                                                         setCount(count => count + 1);
                                                     })
                                                     .catch(err => console.log(err));
@@ -205,20 +247,6 @@ const Feed = () => {
                                 }
                                 </div>
                             )
-                        })
-                    }
-                </div>
-                <div className='Live-Scores'>
-                    <p><b>Live Scores</b></p>
-                    {
-                        baseball.map((baseball, index) => {
-                            
-                            return (
-                                <div key={index}>
-                                    <h1>{baseball.scores.home.total}</h1>
-                                    <h1>{baseball.scores.away.total}</h1>
-                                </div>
-                            );
                         })
                     }
                 </div>
