@@ -4,6 +4,9 @@ import axios from 'axios';
 
 const Feed = () => {
 
+    //The sports api only runs 100 requests a day per type so (100 nba, 100 nfl, and 100 mlb), so when refreshing the page be mindful that you only have 100 requests 
+    //
+
     const navigate = useNavigate();
     const [count, setCount] = useState(0);
     const [fullName, setFullName] = useState("");
