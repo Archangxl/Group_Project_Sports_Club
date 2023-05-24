@@ -41,7 +41,16 @@ const Feed = () => {
     const [liveScoresDisplay, setLiveScoresDisplay] = useState(null);
 
     const [todaysDate, setTodaysDate] = useState(new Date());
-    const [todaysDateFormatForExternalApi, setTodaysDateFormatForExternalApi] = useState(todaysDate.getFullYear().toString() + "-" + todaysDate.getMonth().toString() + "-" + todaysDate.getDate().toString());
+    const [todaysDateFormatForExternalApi, setTodaysDateFormatForExternalApi] = useState(() => {
+
+        if (todaysDate.getMonth().toString().length == 1) {
+            return todaysDate.getFullYear() +"-0" +( todaysDate.getMonth() + 1 ) + "-" + todaysDate.getDate();
+        }
+        else {
+            return todaysDate.getFullYear() +( todaysDate.getMonth() + 1 ) + "-" + todaysDate.getDate();
+        }
+    
+    });
     //liveScoreDisplayController
     useEffect(() => {        
         if (userRequestForLiveScores === null) {
@@ -50,21 +59,47 @@ const Feed = () => {
             axios.get("https://v2.nba.api-sports.io/games?date="+todaysDateFormatForExternalApi,
             {headers: {'x-rapidapi-key': '7292529224de8554a6bd9f9ba3831d88','x-rapidapi-host': 'v2.nba.api-sports.io'}})
                 .then(res => {
-                    console.log(res);
+                    console.log(todaysDateFormatForExternalApi);
+                    setLiveScoresDisplay(res.data.response.map((game, index) => {
+                        
+                        return (
+                            <div key={index} style={{border: "2px solid black", margin: "5px"}}>
+                                <p>{game.teams.home.name} : {game.scores.home.points === null ? 0 : game.scores.home.points}</p>
+                                <p>{game.teams.visitors.name} : {game.scores.visitors.points === null ? 0 : game.scores.visitors.points}</p>
+                            </div>
+                        );
+                        
+                    }));
                 })
                 .catch(err => console.log(err));
         } else if (userRequestForLiveScores === "MLB") {
-            axios.get("https://v1.baseball.api-sports.io/games?date="+todaysDateFormatForExternalApi+"&league=1&season="+todaysDate.getFullYear(),
+            axios.get("https://v1.baseball.api-sports.io/games?date="+todaysDateFormatForExternalApi,
             {headers: {'x-rapidapi-key': '7292529224de8554a6bd9f9ba3831d88','x-rapidapi-host': 'v1.baseball.api-sports.io'}})
                 .then(res => {
-                    console.log(res);
+                    setLiveScoresDisplay(res.data.response.map((game, index) => {
+                        return (
+                            <div key={index} style={{border: "2px solid black", margin: "5px"}}>
+                                <p>{game.teams.home.name} : {game.scores.home.total === null ? 0 : game.scores.home.total}</p>
+                                <p>{game.teams.away.name} : {game.scores.away.total === null ? 0 : game.scores.home.total}</p>
+                            </div>
+                        );
+                    }))
                 })
                 .catch(err => console.log(err));
+            
         } else if (userRequestForLiveScores === "NFL") {
             axios.get("https://v1.american-football.api-sports.io/games?date="+todaysDateFormatForExternalApi,
             {headers: {'x-rapidapi-key': '7292529224de8554a6bd9f9ba3831d88','x-rapidapi-host': 'v1.american-football.api-sports.io'}})
                 .then(res => {
-                    console.log(res);
+                    setLiveScoresDisplay(() => {
+                        if (res.data.response.length === 0) {
+                            return (
+                                <div>
+                                    <p>Season hasn't started yet!</p>
+                                </div>
+                            );
+                        }
+                    });
                 })
                 .catch(err => console.log(err));
         }

@@ -16,10 +16,8 @@ const Login = () => {
         e.preventDefault();
         axios.post("http://localhost:8000/api/user/login",{email: email,password: password}, {withCredentials: true})
             .then(res => {
-                console.log(res);
                 navigate('/profilePage')})
             .catch(err => { 
-                console.log(err.response);
                 setEmailError((err.response.data.email === undefined ? null : err.response.data.email));
                 setPasswordError((err.response.data.password === undefined ? null : err.response.data.password));
             });
